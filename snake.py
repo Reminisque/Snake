@@ -11,17 +11,25 @@ import random
 class Snake():
 	score = 0
 	#score_label_var = "Score: " + str(score)
-	canvasW = 1200
-	canvasH = 800
-	padding = 30
-	heading = 50
+	canvasW = 1200	# width of the tkinter canvas
+	canvasH = 800	# height of the tkinter canvas
+	padding = 30	# padding around the borders of play area
+	heading = 50	# extra padding for header to display things; e.g. score
 	size = 10 		# size of 1 piece of snake
 	the_snek = [] 	# all the pieces of the snake
-	move_x = -size
-	move_y = 0
+	move_x = -size	# movement along x-axis; -size to move left initially
+	move_y = 0		# movement along y-axis;
 
-	direction_decided = False
-	update_speed = 33
+	# Boolean used to prevent near simultaneous movement key presses
+	# from bugging the movement of the snake. For example, when
+	# moving left, if the down and right keys are pressed together,
+	# then the snake will end up moving right along the same axis and
+	# into itself, causing a body collision and ending the game. The key
+	# press events are registered faster than the next update time, which
+	# causes this issue. By having the boolean lock the first direction,
+	# the issue is fixed. See functions move_test and move_dir.
+	direction_decided = False	
+	update_speed = 33		# Time in milliseconds before next update to game state
 	game_over = False
 
 
@@ -36,29 +44,40 @@ class Snake():
 		self.canvas = Canvas(self.master, width=self.canvasW, height=self.canvasH, bg="black")
 		self.canvas.pack()
 
-		# Display grid to visualize movement and all food spawns
+		# Display grid to visualize movement through all food spawns
 		# self.display_grid()
 		
 		# Draw and store the walls for the play area
 		# [0. TOP, 1. RIGHT, 2. BOTTOM, 3. LEFT]
 		self.playArea = [self.canvas.create_line(
-							self.padding, self.heading+self.padding, self.canvasW-self.padding, self.heading+self.padding, fill="white", tags="wall"),
+							self.padding, self.heading+self.padding,
+							self.canvasW-self.padding, self.heading+self.padding,
+							fill="white", tags="wall"),
 						 self.canvas.create_line(
-						 	self.canvasW-self.padding, self.heading+self.padding, self.canvasW-self.padding, self.canvasH-self.padding, fill="white", tags="wall"),
+						 	self.canvasW-self.padding, self.heading+self.padding,
+						 	self.canvasW-self.padding, self.canvasH-self.padding,
+						 	fill="white", tags="wall"),
 						 self.canvas.create_line(
-						 	self.padding, self.canvasH-self.padding, self.canvasW-self.padding, self.canvasH-self.padding, fill="white", tags="wall"),
+						 	self.padding, self.canvasH-self.padding,
+						 	self.canvasW-self.padding, self.canvasH-self.padding,
+						 	fill="white", tags="wall"),
 						 self.canvas.create_line(
-						 	self.padding, self.heading+self.padding, self.padding, self.canvasH-self.padding, fill="white", tags="wall")]
+						 	self.padding, self.heading+self.padding,
+						 	self.padding, self.canvasH-self.padding,
+						 	fill="white", tags="wall")]
 
 
-		# Draw the snake on the canvas
-		self.draw_snake(20)
+		# Draw the snake on the canvas with initial body size
+		self.draw_snake(3)
 		# Draw the food on the canvas
 		self.food = None
 		self.draw_food()
 
 		# Display the score
-		self.score_label = Label(master=self.canvas, text="Score: {}".format(self.score), fg="white", bg="black", font=("Courier", 20))
+		self.score_label = Label(master=self.canvas, text="Score: {}".format(self.score),
+								 fg="white", bg="black", font=("Courier", 20))
+
+		# Create the tkinter canvas
 		self.canvas.create_window(self.canvasW//2, self.heading, window=self.score_label)
 
 		# Key Bindings
@@ -135,7 +154,7 @@ class Snake():
 		for wall in self.canvas.find_withtag("wall"):
 			# If overlap/collision detected then game over
 			if wall in overlapping:
-				print(overlapping)
+				print("Wall collision detected; wall with tag {} found in tuple of overlaps: {}".format(wall, overlapping))
 				self.game_over = True
 				break
 		return
@@ -164,7 +183,7 @@ class Snake():
 	def draw_snake(self, snake_length):
 		for i in range(snake_length):
 			temp_x = (self.canvasW//2) + (i*self.size)
-			temp_y = ((self.canvasH+self.heading)//2) - 5 # The -5 aligns the snake with the food
+			temp_y = ((self.canvasH+self.heading)//2)
 			self.the_snek.append(self.canvas.create_rectangle(
 				temp_x,
 				temp_y,
@@ -178,8 +197,8 @@ class Snake():
 		if(self.food == None):
 			temp_x = random.randrange(self.padding, self.canvasW-self.padding, self.size)
 			temp_y = random.randrange(self.heading+self.padding, self.canvasH-self.padding, self.size)
-			print(temp_x)
-			print(temp_y)
+			#print(temp_x)
+			#print(temp_y)
 
 			self.food = self.canvas.create_rectangle(temp_x, temp_y, temp_x+self.size, temp_y+self.size, fill="yellow", tags="food")
 		'''
