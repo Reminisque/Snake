@@ -28,7 +28,8 @@ class Snake():
 	# press events are registered faster than the next update time, which
 	# causes this issue. By having the boolean lock the first direction,
 	# the issue is fixed. See functions move_test and move_dir.
-	direction_decided = False	
+	direction_decided = False
+	
 	update_speed = 33		# Time in milliseconds before next update to game state
 	game_over = False
 
