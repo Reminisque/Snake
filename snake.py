@@ -5,7 +5,6 @@
 # Python version 3.6
 
 from tkinter import *
-
 import random
 
 class Snake():
