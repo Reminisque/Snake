@@ -1,6 +1,6 @@
 # Snake Game
-# By: 	Travis Chang
-# Date: Nov. 13 2017
+# By: Travis Chang
+# Creation Date: Nov. 13 2017
 # File: snake.py
 # Python version 3.6
 
@@ -9,11 +9,10 @@ import random
 
 class Snake():
 	score = 0
-	#score_label_var = "Score: " + str(score)
 	canvasW = 1200	# width of the tkinter canvas
 	canvasH = 800	# height of the tkinter canvas
-	padding = 30	# padding around the borders of play area
-	heading = 50	# extra padding for header to display things; e.g. score
+	padding = 20	# padding around the borders of play area
+	heading = 40	# extra padding for header to display things; e.g. score
 	size = 10 		# size of 1 piece of snake
 	the_snek = [] 	# all the pieces of the snake
 	move_x = -size	# movement along x-axis; -size to move left initially
@@ -69,6 +68,7 @@ class Snake():
 
 		# Draw the snake on the canvas with initial body size
 		self.draw_snake(3)
+
 		# Draw the food on the canvas
 		self.food = None
 		self.draw_food()
@@ -127,6 +127,7 @@ class Snake():
 			if (len(overlap) > 0):
 				print(overlap)
 			'''
+			# Call the function again after specified time has elapsed
 			self.canvas.after(self.update_speed, self.move_test)
 
 	# Change the movement direction of snake based on keypress event
@@ -144,20 +145,41 @@ class Snake():
 			elif (event.keysym=="Right" and self.move_y != 0):
 				self.move_x = self.size
 				self.move_y = 0
+		# Lock the direction first chosen so it does not change before next update
 		self.direction_decided = True
 
 
 	# Check for collisions with the walls of the play area
 	def check_wall_collision(self):
-		overlapping = self.canvas.find_overlapping(*self.canvas.coords(self.the_snek[0]))
+		###############
+		# OLD VERSION #
+		###############
+		# Pretty much the same, but this one can tell you the tag of the wall hit
+		#
+		# overlapping = self.canvas.find_overlapping(*self.canvas.coords(self.the_snek[0]))
 		# Check if any of the walls overlap with the head of the snake
-		for wall in self.canvas.find_withtag("wall"):
-			# If overlap/collision detected then game over
-			if wall in overlapping:
-				print("Wall collision detected; wall with tag {} found in tuple of overlaps: {}".format(wall, overlapping))
+		# for wall in self.canvas.find_withtag("wall"):
+		# 	# If overlap/collision detected then game over
+		# 	if wall in overlapping:
+		# 		print("Wall collision detected; wall with tag {} found in tuple of overlaps: {}".format(wall, overlapping))
+		# 		self.game_over = True
+		# 		break
+
+		# Pixel position of each wall
+		top_wall = self.heading + self.padding
+		bot_wall = self.canvasH - self.padding
+		left_wall = self.padding
+		right_wall = self.canvasW - self.padding
+
+		# Check if coordinates of snake head match or exceed each wall
+		snake_coords = self.canvas.coords(self.the_snek[0])
+		if (snake_coords[0] <= left_wall  or
+		   snake_coords[1] <= top_wall 	 or
+		   snake_coords[2] >= right_wall or
+		   snake_coords[3] >= bot_wall):
 				self.game_over = True
-				break
 		return
+
 
 	# Check for collisions with the body of the snake
 	def check_body_collision(self):
@@ -168,6 +190,7 @@ class Snake():
 				break
 		return
 
+	# Check if the snake touched/ate a piece of food
 	def ate_food(self):
 		overlapping = self.canvas.find_overlapping(*self.canvas.coords(self.the_snek[0]))
 		if self.canvas.find_withtag("food")[0] in overlapping:
@@ -179,7 +202,7 @@ class Snake():
 		else:
 			return False
 
-
+	# Draw the snake on the canvas
 	def draw_snake(self, snake_length):
 		for i in range(snake_length):
 			temp_x = (self.canvasW//2) + (i*self.size)
@@ -193,6 +216,7 @@ class Snake():
 
 		return
 
+	# Draw the food on the canvas
 	def draw_food(self):
 		if(self.food == None):
 			temp_x = random.randrange(self.padding, self.canvasW-self.padding, self.size)
@@ -201,15 +225,10 @@ class Snake():
 			#print(temp_y)
 
 			self.food = self.canvas.create_rectangle(temp_x, temp_y, temp_x+self.size, temp_y+self.size, fill="yellow", tags="food")
-		'''
-		else:
-			self.canvas.delete(self.food)
-			self.food = None
-		'''
-		#self.canvas.after(self.update_speed*10, self.draw_food)
 
 
-	# Display grid that the snake travels on and where food can appear
+	# Display grid that the where the food can appear
+	# TESTING tool
 	def display_grid(self):
 		for i in range(self.padding, self.canvasW-self.padding, self.size):
 			for j in range(self.padding+self.heading, self.canvasH-self.padding, self.size):
@@ -220,6 +239,6 @@ if __name__ == '__main__':
 
 	snek = Snake(root)
 	snek.move_test()
-	#print(snek.canvas.find_withtag("wall"))
+	# print(snek.canvas.find_withtag("wall"))
 	root.mainloop()	 
 
